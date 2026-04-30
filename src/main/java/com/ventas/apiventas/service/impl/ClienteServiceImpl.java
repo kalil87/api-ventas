@@ -3,6 +3,7 @@ package com.ventas.apiventas.service.impl;
 import com.ventas.apiventas.dto.ClienteRequestDto;
 import com.ventas.apiventas.dto.ClienteResponseDto;
 import com.ventas.apiventas.entity.Cliente;
+import com.ventas.apiventas.exception.NoEncontradoException;
 import com.ventas.apiventas.mapper.ClienteMapper;
 import com.ventas.apiventas.repository.ClienteRepository;
 import com.ventas.apiventas.service.ClienteService;
@@ -33,14 +34,14 @@ public class ClienteServiceImpl implements ClienteService {
 
     public ClienteResponseDto buscarPorId(Long id) {
         Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+                .orElseThrow(() -> new NoEncontradoException("Cliente no encontrado"));
 
         return ClienteMapper.toDto(cliente);
     }
 
     public ClienteResponseDto actualizar(Long id, ClienteRequestDto dto) {
         Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+                .orElseThrow(() -> new NoEncontradoException("Cliente no encontrado"));
 
         cliente.setNombre(dto.nombre());
         cliente.setApellido(dto.apellido());
@@ -52,7 +53,7 @@ public class ClienteServiceImpl implements ClienteService {
 
     public void eliminar(Long id) {
         if (!clienteRepository.existsById(id)) {
-            throw new RuntimeException("Cliente no encontrado");
+            throw new NoEncontradoException("Cliente no encontrado");
         }
         clienteRepository.deleteById(id);
     }

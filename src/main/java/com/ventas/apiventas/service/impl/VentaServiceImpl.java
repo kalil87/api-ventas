@@ -7,6 +7,9 @@ import com.ventas.apiventas.entity.Cliente;
 import com.ventas.apiventas.entity.DetalleVenta;
 import com.ventas.apiventas.entity.Producto;
 import com.ventas.apiventas.entity.Venta;
+import com.ventas.apiventas.exception.ConflictoException;
+import com.ventas.apiventas.exception.NoEncontradoException;
+import com.ventas.apiventas.exception.SolicitudIncorrectaException;
 import com.ventas.apiventas.mapper.DetalleVentaMapper;
 import com.ventas.apiventas.mapper.VentaMapper;
 import com.ventas.apiventas.repository.ClienteRepository;
@@ -56,7 +59,11 @@ public class VentaServiceImpl implements VentaService {
     public VentaResponseDto crear(VentaRequestDto dto) {
 
         Cliente cliente = clienteRepository.findById(dto.clienteId())
-                .orElseThrow(() -> new RuntimeException("Cliente no existe"));
+                .orElseThrow(() -> new NoEncontradoException("Cliente no existe"));
+
+        if (dto.detalles().size() > 20) {
+            throw new SolicitudIncorrectaException("Máximo 20 productos por venta");
+        }
 
         Venta venta = new Venta();
         venta.setCliente(cliente);
@@ -68,10 +75,10 @@ public class VentaServiceImpl implements VentaService {
         for (DetalleVentaRequestDto detalleVentaRequestDto : dto.detalles()) {
 
             Producto producto = productoRepository.findById(detalleVentaRequestDto.productoId())
-                    .orElseThrow(() -> new RuntimeException("Producto no existe"));
+                    .orElseThrow(() -> new NoEncontradoException("Producto no existe"));
 
             if (producto.getStock() < detalleVentaRequestDto.cantidad()) {
-                throw new RuntimeException("Stock insuficiente, solo quedan " + producto.getStock() + " unidades");
+                throw new ConflictoException("Stock insuficiente, solo quedan " + producto.getStock() + " unidades");
             }
 
             DetalleVenta detalleVenta = DetalleVentaMapper.toEntity(detalleVentaRequestDto, producto);
@@ -100,7 +107,7 @@ public class VentaServiceImpl implements VentaService {
 
     public VentaResponseDto buscarPorId(Long id) {
         Venta venta = ventaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Venta no encontrada"));
+                .orElseThrow(() -> new NoEncontradoException("Venta no encontrada"));
 
         return VentaMapper.toDto(venta);
     }

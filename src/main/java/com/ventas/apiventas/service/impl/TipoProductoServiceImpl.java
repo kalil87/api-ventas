@@ -3,6 +3,7 @@ package com.ventas.apiventas.service.impl;
 import com.ventas.apiventas.dto.TipoProductoRequestDto;
 import com.ventas.apiventas.dto.TipoProductoResponseDto;
 import com.ventas.apiventas.entity.TipoProducto;
+import com.ventas.apiventas.exception.NoEncontradoException;
 import com.ventas.apiventas.mapper.TipoProductoMapper;
 import com.ventas.apiventas.repository.TipoProductoRepository;
 import com.ventas.apiventas.service.TipoProductoService;
@@ -33,14 +34,14 @@ public class TipoProductoServiceImpl implements TipoProductoService {
 
     public TipoProductoResponseDto buscarPorId(Long id) {
         TipoProducto tipo = tipoProductoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("TipoProducto no encontrado"));
+                .orElseThrow(() -> new NoEncontradoException("TipoProducto no encontrado"));
 
         return TipoProductoMapper.toDto(tipo);
     }
 
     public TipoProductoResponseDto actualizar(Long id, TipoProductoRequestDto dto) {
         TipoProducto tipo = tipoProductoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("TipoProducto no encontrado"));
+                .orElseThrow(() -> new NoEncontradoException("TipoProducto no encontrado"));
 
         tipo.setNombre(dto.nombre());
         tipo.setDescripcion(dto.descripcion());
@@ -51,7 +52,7 @@ public class TipoProductoServiceImpl implements TipoProductoService {
 
     public void eliminar(Long id) {
         if (!tipoProductoRepository.existsById(id)) {
-            throw new RuntimeException("TipoProducto no encontrado");
+            throw new NoEncontradoException("TipoProducto no encontrado");
         }
         tipoProductoRepository.deleteById(id);
     }
