@@ -4,6 +4,7 @@ import com.ventas.apiventas.dto.ProductoRequestDto;
 import com.ventas.apiventas.dto.ProductoResponseDto;
 import com.ventas.apiventas.entity.Producto;
 import com.ventas.apiventas.entity.TipoProducto;
+import com.ventas.apiventas.exception.NoEncontradoException;
 import com.ventas.apiventas.mapper.ProductoMapper;
 import com.ventas.apiventas.repository.ProductoRepository;
 import com.ventas.apiventas.repository.TipoProductoRepository;
@@ -25,7 +26,7 @@ public class ProductoServiceImpl implements ProductoService {
     public ProductoResponseDto crear(ProductoRequestDto dto) {
 
         TipoProducto tipo = tipoProductoRepository.findById(dto.tipoProductoId())
-                .orElseThrow(() -> new RuntimeException("TipoProducto no encontrado"));
+                .orElseThrow(() -> new NoEncontradoException("TipoProducto no encontrado"));
 
         Producto producto = new Producto();
         producto.setNombre(dto.nombre());
@@ -51,7 +52,7 @@ public class ProductoServiceImpl implements ProductoService {
 
     public ProductoResponseDto buscarPorId(Long id) {
         Producto producto = productoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new NoEncontradoException("Producto no encontrado"));
 
         return ProductoMapper.toDto(producto);
     }
@@ -59,10 +60,10 @@ public class ProductoServiceImpl implements ProductoService {
     public ProductoResponseDto actualizar(Long id, ProductoRequestDto dto) {
 
         Producto producto = productoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new NoEncontradoException("Producto no encontrado"));
 
         TipoProducto tipo = tipoProductoRepository.findById(dto.tipoProductoId())
-                .orElseThrow(() -> new RuntimeException("TipoProducto no encontrado"));
+                .orElseThrow(() -> new NoEncontradoException("TipoProducto no encontrado"));
 
         producto.setNombre(dto.nombre());
         producto.setPrecio(dto.precio());
@@ -76,7 +77,7 @@ public class ProductoServiceImpl implements ProductoService {
 
     public void eliminar(Long id) {
         if (!productoRepository.existsById(id)) {
-            throw new RuntimeException("Producto no encontrado");
+            throw new NoEncontradoException("Producto no encontrado");
         }
         productoRepository.deleteById(id);
     }

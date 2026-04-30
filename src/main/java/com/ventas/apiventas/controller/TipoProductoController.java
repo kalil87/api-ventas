@@ -4,11 +4,14 @@ import com.ventas.apiventas.dto.TipoProductoRequestDto;
 import com.ventas.apiventas.dto.TipoProductoResponseDto;
 import com.ventas.apiventas.service.TipoProductoService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/tipos-producto")
 public class TipoProductoController {
@@ -30,18 +33,19 @@ public class TipoProductoController {
     }
 
     @GetMapping("/{id}")
-    public TipoProductoResponseDto buscarPorId(@Valid @PathVariable Long id) {
+    public TipoProductoResponseDto buscarPorId(@PathVariable @Positive(message = "El id debe ser mayor que 0") Long id) {
         return tipoProductoService.buscarPorId(id);
     }
 
     @PutMapping("/{id}")
-    public TipoProductoResponseDto actualizar(@Valid @PathVariable Long id, @Valid @RequestBody TipoProductoRequestDto dto) {
+    public TipoProductoResponseDto actualizar(@PathVariable @Positive(message = "El id debe ser mayor que 0") Long id,
+                                              @Valid @RequestBody TipoProductoRequestDto dto) {
         return tipoProductoService.actualizar(id, dto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void eliminar(@Valid @PathVariable Long id) {
+    public void eliminar(@PathVariable @Positive(message = "El id debe ser mayor que 0") Long id) {
         tipoProductoService.eliminar(id);
     }
 }
