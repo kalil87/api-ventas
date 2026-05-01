@@ -1,7 +1,7 @@
 package com.ventas.apiventas.controller;
 
-import com.ventas.apiventas.dto.TipoProductoRequestDto;
-import com.ventas.apiventas.dto.TipoProductoResponseDto;
+import com.ventas.apiventas.dto.request.TipoProductoRequestDto;
+import com.ventas.apiventas.dto.response.TipoProductoResponseDto;
 import com.ventas.apiventas.service.TipoProductoService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;

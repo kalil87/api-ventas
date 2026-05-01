@@ -1,8 +1,9 @@
 package com.ventas.apiventas.service.impl;
 
-import com.ventas.apiventas.dto.ClienteRequestDto;
-import com.ventas.apiventas.dto.ClienteResponseDto;
+import com.ventas.apiventas.dto.request.ClienteRequestDto;
+import com.ventas.apiventas.dto.response.ClienteResponseDto;
 import com.ventas.apiventas.entity.Cliente;
+import com.ventas.apiventas.exception.ConflictoException;
 import com.ventas.apiventas.exception.NoEncontradoException;
 import com.ventas.apiventas.mapper.ClienteMapper;
 import com.ventas.apiventas.repository.ClienteRepository;
@@ -20,6 +21,7 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     public ClienteResponseDto crear(ClienteRequestDto dto) {
+
         Cliente cliente = ClienteMapper.toEntity(dto);
         Cliente guardado = clienteRepository.save(cliente);
         return ClienteMapper.toDto(guardado);
@@ -46,6 +48,8 @@ public class ClienteServiceImpl implements ClienteService {
         cliente.setNombre(dto.nombre());
         cliente.setApellido(dto.apellido());
         cliente.setCorreo(dto.correo());
+        cliente.setTelefono(dto.telefono());
+        cliente.setDireccion(dto.direccion());
 
         Cliente actualizado = clienteRepository.save(cliente);
         return ClienteMapper.toDto(actualizado);

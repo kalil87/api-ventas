@@ -1,4 +1,4 @@
-package com.ventas.apiventas.dto;
+package com.ventas.apiventas.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

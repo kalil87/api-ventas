@@ -1,7 +1,7 @@
 package com.ventas.apiventas.service;
 
-import com.ventas.apiventas.dto.TipoProductoRequestDto;
-import com.ventas.apiventas.dto.TipoProductoResponseDto;
+import com.ventas.apiventas.dto.request.TipoProductoRequestDto;
+import com.ventas.apiventas.dto.response.TipoProductoResponseDto;
 
 import java.util.List;
 

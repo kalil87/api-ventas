@@ -1,7 +1,7 @@
 package com.ventas.apiventas.service.impl;
 
-import com.ventas.apiventas.dto.ProductoRequestDto;
-import com.ventas.apiventas.dto.ProductoResponseDto;
+import com.ventas.apiventas.dto.request.ProductoRequestDto;
+import com.ventas.apiventas.dto.response.ProductoResponseDto;
 import com.ventas.apiventas.entity.Producto;
 import com.ventas.apiventas.entity.TipoProducto;
 import com.ventas.apiventas.exception.NoEncontradoException;
