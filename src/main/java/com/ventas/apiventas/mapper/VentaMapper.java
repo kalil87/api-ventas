@@ -1,6 +1,6 @@
 package com.ventas.apiventas.mapper;
 
-import com.ventas.apiventas.dto.VentaResponseDto;
+import com.ventas.apiventas.dto.response.VentaResponseDto;
 import com.ventas.apiventas.entity.Venta;
 
 public class VentaMapper {

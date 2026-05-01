@@ -1,7 +1,7 @@
 package com.ventas.apiventas.mapper;
 
-import com.ventas.apiventas.dto.DetalleVentaRequestDto;
-import com.ventas.apiventas.dto.DetalleVentaResponseDto;
+import com.ventas.apiventas.dto.request.DetalleVentaRequestDto;
+import com.ventas.apiventas.dto.response.DetalleVentaResponseDto;
 import com.ventas.apiventas.entity.DetalleVenta;
 import com.ventas.apiventas.entity.Producto;
 
