@@ -1,7 +1,7 @@
 package com.ventas.apiventas.service.impl;
 
-import com.ventas.apiventas.dto.TipoProductoRequestDto;
-import com.ventas.apiventas.dto.TipoProductoResponseDto;
+import com.ventas.apiventas.dto.request.TipoProductoRequestDto;
+import com.ventas.apiventas.dto.response.TipoProductoResponseDto;
 import com.ventas.apiventas.entity.TipoProducto;
 import com.ventas.apiventas.exception.NoEncontradoException;
 import com.ventas.apiventas.mapper.TipoProductoMapper;

@@ -1,7 +1,7 @@
 package com.ventas.apiventas.controller;
 
-import com.ventas.apiventas.dto.ProductoRequestDto;
-import com.ventas.apiventas.dto.ProductoResponseDto;
+import com.ventas.apiventas.dto.request.ProductoRequestDto;
+import com.ventas.apiventas.dto.response.ProductoResponseDto;
 import com.ventas.apiventas.service.ProductoService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -30,7 +30,7 @@ public class ProductoController {
 
     @GetMapping
     public List<ProductoResponseDto> listar(@RequestParam(required = false)
-                                                @Size(min = 2, max = 50, message = "El nombre debe tener entre 2 y 50 caracteres")
+                                                @Size(min = 1, max = 50, message = "El nombre debe tener entre 1 y 50 caracteres")
                                                 String nombre) {
         return productoService.listar(nombre);
     }

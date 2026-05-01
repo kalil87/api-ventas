@@ -1,8 +1,9 @@
 package com.ventas.apiventas.service.impl;
 
-import com.ventas.apiventas.dto.DetalleVentaRequestDto;
-import com.ventas.apiventas.dto.VentaRequestDto;
-import com.ventas.apiventas.dto.VentaResponseDto;
+import com.ventas.apiventas.dto.report.*;
+import com.ventas.apiventas.dto.request.DetalleVentaRequestDto;
+import com.ventas.apiventas.dto.request.VentaRequestDto;
+import com.ventas.apiventas.dto.response.VentaResponseDto;
 import com.ventas.apiventas.entity.Cliente;
 import com.ventas.apiventas.entity.DetalleVenta;
 import com.ventas.apiventas.entity.Producto;
@@ -20,6 +21,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +42,7 @@ public class VentaServiceImpl implements VentaService {
      *
      * Flujo:
      * - Busca el cliente
+     * - Se valida cantidad maxima de DetalleVenta
      * - Crea la venta (aún sin ID en BD)
      * - Recorre los detalles:
      *     - Valida existencia de producto
@@ -110,5 +113,52 @@ public class VentaServiceImpl implements VentaService {
                 .orElseThrow(() -> new NoEncontradoException("Venta no encontrada"));
 
         return VentaMapper.toDto(venta);
+    }
+
+    public List<ClienteTotalGastadoDto> totalGastadoPorCliente(String orden) {
+
+        if ("asc".equalsIgnoreCase(orden)) {
+            return ventaRepository.obtenerTotalGastadoAsc();
+        }
+
+        return ventaRepository.obtenerTotalGastadoDesc();
+    }
+
+    public List<ClienteProductoDetalleDto> detalleComprasPorCliente(Long clienteId) {
+        return ventaRepository.obtenerDetalleAgrupadoPorCliente(clienteId);
+    }
+
+    public List<ProductoMasVendidoDto> productosMasVendidos() {
+        return ventaRepository.obtenerProductosMasVendidos();
+    }
+
+    public List<VentasPorFechaDto> ventasPorFecha(LocalDate desde, LocalDate hasta) {
+        return ventaRepository.ventasPorFecha(desde, hasta);
+    }
+
+    public VentasResumenDto resumenPorFecha(LocalDate desde, LocalDate hasta) {
+
+        if (desde == null) {
+            desde = LocalDate.now();
+        }
+
+        if (hasta == null) {
+            hasta = LocalDate.now();
+        }
+
+        if (desde.isAfter(hasta) || hasta.isAfter(LocalDate.now())) {
+            throw new SolicitudIncorrectaException("Rango de fechas inválido");
+        }
+
+        Double total = ventaRepository.totalPorRango(desde, hasta);
+
+        if (total == null) {
+            total = 0.0;
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        String periodo = "Desde " + desde.format(formatter) + " hasta " + hasta.format(formatter);
+
+        return new VentasResumenDto(periodo, total);
     }
 }

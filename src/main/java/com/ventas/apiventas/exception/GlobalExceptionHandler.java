@@ -2,10 +2,14 @@ package com.ventas.apiventas.exception;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -109,6 +113,61 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Maneja errores cuando se usa un método HTTP no permitido.
+     * Se ejecuta cuando el endpoint existe pero se usa un método incorrecto
+     * (ej: hacer POST en una ruta que solo acepta GET).
+     * Devuelve HTTP 405 METHOD_NOT_ALLOWED.
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> manejarMetodoNoPermitido(
+            HttpRequestMethodNotSupportedException ex) {
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.METHOD_NOT_ALLOWED.value(),
+                "METHOD_NOT_ALLOWED",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(error);
+    }
+
+    /**
+     * Maneja errores de integridad en base de datos.
+     * Se ejecuta cuando se viola una restricción, como datos únicos duplicados
+     * (ej: correo ya registrado).
+     * Devuelve HTTP 409 CONFLICT con un mensaje descriptivo.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> manejarDuplicados(DataIntegrityViolationException ex){
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                "CONFLICT",
+                "El correo ya está registrado",
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    /**
+     * Maneja rutas inexistentes.
+     * Se ejecuta cuando el cliente intenta acceder a un endpoint que no existe.
+     * Devuelve HTTP 404 NOT_FOUND con información de la ruta solicitada.
+     */
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ErrorResponse> manejarRutaNoEncontrada(NoHandlerFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                "NOT_FOUND",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    /**
      * Maneja errores inesperados del sistema.
      * Captura cualquier excepción no controlada previamente.
      * Devuelve HTTP 500 INTERNAL_SERVER_ERROR con un mensaje genérico.
@@ -123,5 +182,25 @@ public class GlobalExceptionHandler {
                         LocalDateTime.now()),
                 HttpStatus.INTERNAL_SERVER_ERROR
         );
+    }
+
+    /**
+     * Maneja errores de lectura del cuerpo de la solicitud.
+     * Se ejecuta cuando el JSON enviado está mal formado o contiene datos inválidos
+     * para ser convertidos al DTO.
+     * Devuelve HTTP 400 BAD_REQUEST con un mensaje genérico.
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> manejarJsonInvalido(
+            HttpMessageNotReadableException ex) {
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "BAD_REQUEST",
+                "JSON inválido o mal formado",
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }

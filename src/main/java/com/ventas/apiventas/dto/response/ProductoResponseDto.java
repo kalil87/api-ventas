@@ -1,4 +1,4 @@
-package com.ventas.apiventas.dto;
+package com.ventas.apiventas.dto.response;
 
 public record ProductoResponseDto(
         Long id,

@@ -1,7 +1,7 @@
 package com.ventas.apiventas.controller;
 
-import com.ventas.apiventas.dto.ClienteRequestDto;
-import com.ventas.apiventas.dto.ClienteResponseDto;
+import com.ventas.apiventas.dto.request.ClienteRequestDto;
+import com.ventas.apiventas.dto.response.ClienteResponseDto;
 import com.ventas.apiventas.service.ClienteService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;

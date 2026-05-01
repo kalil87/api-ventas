@@ -1,4 +1,4 @@
-package com.ventas.apiventas.dto;
+package com.ventas.apiventas.dto.response;
 
 import java.time.LocalDate;
 import java.util.List;
