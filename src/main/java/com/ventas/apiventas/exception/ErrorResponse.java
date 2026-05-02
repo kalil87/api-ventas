@@ -1,10 +1,24 @@
 package com.ventas.apiventas.exception;
 
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.time.LocalDateTime;
+import java.util.Map;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record ErrorResponse(
+        LocalDateTime timestamp,
         int status,
         String error,
         String message,
-        LocalDateTime timestamp
-) {}
+        String path,
+        Map<String, String> errors
+) {
+    public ErrorResponse(int status, String error, String message, String path, Map<String, String> errors) {
+        this(LocalDateTime.now(), status, error, message, path, errors);
+    }
+
+    public ErrorResponse(int status, String error, String message, String path) {
+        this(LocalDateTime.now(), status, error, message, path, null);
+    }
+}

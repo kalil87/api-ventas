@@ -62,10 +62,10 @@ public class VentaServiceImpl implements VentaService {
     public VentaResponseDto crear(VentaRequestDto dto) {
 
         Cliente cliente = clienteRepository.findById(dto.clienteId())
-                .orElseThrow(() -> new NoEncontradoException("Cliente no existe"));
+                .orElseThrow(() -> new NoEncontradoException("Cliente no registrado"));
 
-        if (dto.detalles().size() > 20) {
-            throw new SolicitudIncorrectaException("Máximo 20 productos por venta");
+        if (dto.detalles().size() > 2) {
+            throw new SolicitudIncorrectaException("Máximo 2 productos por venta");
         }
 
         Venta venta = new Venta();
