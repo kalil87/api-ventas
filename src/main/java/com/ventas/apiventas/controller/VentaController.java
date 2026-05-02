@@ -35,7 +35,7 @@ public class VentaController {
     }
 
     @GetMapping("/{id}")
-    public VentaResponseDto buscarPorId(@PathVariable @Positive(message = "El id debe ser mayor que 0") Long id) {
+    public VentaResponseDto buscarPorId(@PathVariable @Positive(message = "El id debe ser un numero mayor que 0") Long id) {
         return ventaService.buscarPorId(id);
     }
 

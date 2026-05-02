@@ -1,5 +1,6 @@
 package com.ventas.apiventas.exception;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,15 +24,15 @@ public class GlobalExceptionHandler {
      * Devuelve HTTP 404 NOT_FOUND con el mensaje del error.
      */
     @ExceptionHandler(NoEncontradoException.class)
-    public ResponseEntity<ErrorResponse> manejarNotFound(NoEncontradoException ex) {
-        return new ResponseEntity<>(
-                new ErrorResponse(
-                        HttpStatus.NOT_FOUND.value(),
-                        "NOT_FOUND",
-                        ex.getMessage(),
-                        LocalDateTime.now()),
-                HttpStatus.NOT_FOUND
-        );
+    public ResponseEntity<ErrorResponse> manejarNotFound(NoEncontradoException ex, HttpServletRequest request) {
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                "NOT_FOUND",
+                ex.getMessage(),
+                request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     /**
@@ -41,15 +41,15 @@ public class GlobalExceptionHandler {
      * Devuelve HTTP 400 BAD_REQUEST con el mensaje del error.
      */
     @ExceptionHandler(SolicitudIncorrectaException.class)
-    public ResponseEntity<ErrorResponse> manejarBadRequest(SolicitudIncorrectaException ex) {
-        return new ResponseEntity<>(
-                new ErrorResponse(
-                        HttpStatus.BAD_REQUEST.value(),
-                        "BAD_REQUEST",
-                        ex.getMessage(),
-                        LocalDateTime.now()),
-                HttpStatus.BAD_REQUEST
-        );
+    public ResponseEntity<ErrorResponse> manejarBadRequest(SolicitudIncorrectaException ex, HttpServletRequest request) {
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "BAD_REQUEST",
+                ex.getMessage(),
+                request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     /**
@@ -59,15 +59,15 @@ public class GlobalExceptionHandler {
      * Devuelve HTTP 409 CONFLICT.
      */
     @ExceptionHandler(ConflictoException.class)
-    public ResponseEntity<ErrorResponse> manejarConflict(ConflictoException ex) {
-        return new ResponseEntity<>(
-                new ErrorResponse(
-                        HttpStatus.CONFLICT.value(),
-                        "CONFLICT",
-                        ex.getMessage(),
-                        LocalDateTime.now()),
-                HttpStatus.CONFLICT
-        );
+    public ResponseEntity<ErrorResponse> manejarConflict(ConflictoException ex, HttpServletRequest request) {
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                "CONFLICT",
+                ex.getMessage(),
+                request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     /**
@@ -76,15 +76,24 @@ public class GlobalExceptionHandler {
      * Devuelve HTTP 400 BAD_REQUEST con un mapa de campo → mensaje de error.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> manejarValidaciones(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> manejarValidaciones(MethodArgumentNotValidException ex, HttpServletRequest request) {
 
         Map<String, String> errores = new HashMap<>();
 
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
-            errores.put(error.getField(), error.getDefaultMessage());
-        });
+        ex.getBindingResult()
+                .getFieldErrors()
+                .forEach(error -> {
+            errores.put(error.getField(), error.getDefaultMessage());});
 
-        return ResponseEntity.badRequest().body(errores);
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "BAD_REQUEST",
+                "Error de validación en los campos enviados",
+                request.getRequestURI(),
+                errores
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     /**
@@ -93,7 +102,12 @@ public class GlobalExceptionHandler {
      * Devuelve HTTP 400 BAD_REQUEST con un mensaje descriptivo del parámetro inválido.
      */
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> manejarConstraint(ConstraintViolationException ex) {
+    public ResponseEntity<ErrorResponse> manejarConstraint(ConstraintViolationException ex, HttpServletRequest request) {
+
+        Map<String, String> errores = new HashMap<>();
+
+        ex.getConstraintViolations().forEach(error -> {
+            errores.put(error.getPropertyPath().toString(), error.getMessage());});
 
         String mensaje = ex.getConstraintViolations()
                 .stream()
@@ -101,15 +115,32 @@ public class GlobalExceptionHandler {
                 .map(ConstraintViolation::getMessage)
                 .orElse("Parámetro inválido");
 
-        return new ResponseEntity<>(
-                new ErrorResponse(
-                        HttpStatus.BAD_REQUEST.value(),
-                        "BAD_REQUEST",
-                        mensaje,
-                        LocalDateTime.now()
-                ),
-                HttpStatus.BAD_REQUEST
-        );
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "BAD_REQUEST",
+                mensaje,
+                request.getRequestURI(),
+                errores);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    /**
+     * Maneja errores de lectura del cuerpo de la solicitud.
+     * Se ejecuta cuando el JSON enviado está mal formado o contiene datos inválidos
+     * para ser convertidos al DTO.
+     * Devuelve HTTP 400 BAD_REQUEST con un mensaje genérico.
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> manejarJsonInvalido(HttpMessageNotReadableException ex,
+                                                             HttpServletRequest request) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "BAD_REQUEST",
+                "JSON inválido o mal formado",
+                request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     /**
@@ -119,15 +150,13 @@ public class GlobalExceptionHandler {
      * Devuelve HTTP 405 METHOD_NOT_ALLOWED.
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ErrorResponse> manejarMetodoNoPermitido(
-            HttpRequestMethodNotSupportedException ex) {
-
+    public ResponseEntity<ErrorResponse> manejarMetodoNoPermitido(HttpRequestMethodNotSupportedException ex,
+                                                                  HttpServletRequest request) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.METHOD_NOT_ALLOWED.value(),
                 "METHOD_NOT_ALLOWED",
                 ex.getMessage(),
-                LocalDateTime.now()
-        );
+                request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(error);
     }
@@ -139,13 +168,13 @@ public class GlobalExceptionHandler {
      * Devuelve HTTP 409 CONFLICT con un mensaje descriptivo.
      */
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> manejarDuplicados(DataIntegrityViolationException ex){
+    public ResponseEntity<ErrorResponse> manejarDuplicados(DataIntegrityViolationException ex, HttpServletRequest request){
+
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
                 "CONFLICT",
                 "El correo ya está registrado",
-                LocalDateTime.now()
-        );
+                request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
@@ -156,13 +185,13 @@ public class GlobalExceptionHandler {
      * Devuelve HTTP 404 NOT_FOUND con información de la ruta solicitada.
      */
     @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<ErrorResponse> manejarRutaNoEncontrada(NoHandlerFoundException ex) {
+    public ResponseEntity<ErrorResponse> manejarRutaNoEncontrada(NoHandlerFoundException ex, HttpServletRequest request) {
+
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
                 "NOT_FOUND",
                 ex.getMessage(),
-                LocalDateTime.now()
-        );
+                request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
@@ -173,34 +202,14 @@ public class GlobalExceptionHandler {
      * Devuelve HTTP 500 INTERNAL_SERVER_ERROR con un mensaje genérico.
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> manejarGeneral(Exception ex) {
-        return new ResponseEntity<>(
-                new ErrorResponse(
-                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                        "INTERNAL_SERVER_ERROR",
-                        "Ocurrió un error inesperado",
-                        LocalDateTime.now()),
-                HttpStatus.INTERNAL_SERVER_ERROR
-        );
-    }
-
-    /**
-     * Maneja errores de lectura del cuerpo de la solicitud.
-     * Se ejecuta cuando el JSON enviado está mal formado o contiene datos inválidos
-     * para ser convertidos al DTO.
-     * Devuelve HTTP 400 BAD_REQUEST con un mensaje genérico.
-     */
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> manejarJsonInvalido(
-            HttpMessageNotReadableException ex) {
+    public ResponseEntity<ErrorResponse> manejarGeneral(Exception ex, HttpServletRequest request) {
 
         ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                "BAD_REQUEST",
-                "JSON inválido o mal formado",
-                LocalDateTime.now()
-        );
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "INTERNAL_SERVER_ERROR",
+                "Ocurrió un error inesperado",
+                request.getRequestURI());
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }
