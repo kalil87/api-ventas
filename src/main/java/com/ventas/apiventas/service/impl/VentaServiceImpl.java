@@ -64,7 +64,7 @@ public class VentaServiceImpl implements VentaService {
         Cliente cliente = clienteRepository.findById(dto.clienteId())
                 .orElseThrow(() -> new NoEncontradoException("Cliente no registrado"));
 
-        if (dto.detalles().size() > 2) {
+        if (dto.detalles().size() > 2) {//CAMBIADO PARA TEST (2)
             throw new SolicitudIncorrectaException("Máximo 2 productos por venta");
         }
 
@@ -78,7 +78,7 @@ public class VentaServiceImpl implements VentaService {
         for (DetalleVentaRequestDto detalleVentaRequestDto : dto.detalles()) {
 
             Producto producto = productoRepository.findById(detalleVentaRequestDto.productoId())
-                    .orElseThrow(() -> new NoEncontradoException("Producto no existe"));
+                    .orElseThrow(() -> new NoEncontradoException("Producto no registrado"));
 
             if (producto.getStock() < detalleVentaRequestDto.cantidad()) {
                 throw new ConflictoException("Stock insuficiente, solo quedan " + producto.getStock() + " unidades");
@@ -110,7 +110,7 @@ public class VentaServiceImpl implements VentaService {
 
     public VentaResponseDto buscarPorId(Long id) {
         Venta venta = ventaRepository.findById(id)
-                .orElseThrow(() -> new NoEncontradoException("Venta no encontrada"));
+                .orElseThrow(() -> new NoEncontradoException("Venta no registrada"));
 
         return VentaMapper.toDto(venta);
     }
@@ -157,7 +157,7 @@ public class VentaServiceImpl implements VentaService {
         }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        String periodo = "Desde " + desde.format(formatter) + " hasta " + hasta.format(formatter);
+        String periodo = "Desde " + desde.format(formatter) + ", hasta " + hasta.format(formatter);
 
         return new VentasResumenDto(periodo, total);
     }

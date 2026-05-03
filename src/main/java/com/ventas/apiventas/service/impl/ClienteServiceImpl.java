@@ -36,14 +36,14 @@ public class ClienteServiceImpl implements ClienteService {
 
     public ClienteResponseDto buscarPorId(Long id) {
         Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new NoEncontradoException("Cliente no encontrado"));
+                .orElseThrow(() -> new NoEncontradoException("Cliente no registrado"));
 
         return ClienteMapper.toDto(cliente);
     }
 
     public ClienteResponseDto actualizar(Long id, ClienteRequestDto dto) {
         Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new NoEncontradoException("Cliente no encontrado"));
+                .orElseThrow(() -> new NoEncontradoException("Cliente no registrado"));
 
         cliente.setNombre(dto.nombre());
         cliente.setApellido(dto.apellido());
@@ -57,7 +57,7 @@ public class ClienteServiceImpl implements ClienteService {
 
     public void eliminar(Long id) {
         if (!clienteRepository.existsById(id)) {
-            throw new NoEncontradoException("Cliente no encontrado");
+            throw new NoEncontradoException("Cliente no registrado");
         }
         clienteRepository.deleteById(id);
     }
