@@ -33,19 +33,19 @@ public class TipoProductoController {
     }
 
     @GetMapping("/{id}")
-    public TipoProductoResponseDto buscarPorId(@PathVariable @Positive(message = "El id debe ser mayor que 0") Long id) {
+    public TipoProductoResponseDto buscarPorId(@PathVariable @Positive(message = "El ID debe ser mayor que 0") Long id) {
         return tipoProductoService.buscarPorId(id);
     }
 
     @PutMapping("/{id}")
-    public TipoProductoResponseDto actualizar(@PathVariable @Positive(message = "El id debe ser mayor que 0") Long id,
+    public TipoProductoResponseDto actualizar(@PathVariable @Positive(message = "El ID debe ser mayor que 0") Long id,
                                               @Valid @RequestBody TipoProductoRequestDto dto) {
         return tipoProductoService.actualizar(id, dto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void eliminar(@PathVariable @Positive(message = "El id debe ser mayor que 0") Long id) {
+    public void eliminar(@PathVariable @Positive(message = "El ID debe ser mayor que 0") Long id) {
         tipoProductoService.eliminar(id);
     }
 }

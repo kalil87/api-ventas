@@ -35,7 +35,7 @@ public class VentaController {
     }
 
     @GetMapping("/{id}")
-    public VentaResponseDto buscarPorId(@PathVariable @Positive(message = "El id debe ser un numero mayor que 0") Long id) {
+    public VentaResponseDto buscarPorId(@PathVariable @Positive(message = "El ID debe ser mayor que 0") Long id) {
         return ventaService.buscarPorId(id);
     }
 
@@ -46,7 +46,7 @@ public class VentaController {
 
     @GetMapping("/clientes/{id}/compras-detalle")
     public List<ClienteProductoDetalleDto> detalleComprasPorCliente(@PathVariable
-                                                                        @Positive(message = "El id debe ser mayor que 0")
+                                                                        @Positive(message = "El ID debe ser mayor que 0")
                                                                         Long id) {
         return ventaService.detalleComprasPorCliente(id);
     }
@@ -62,7 +62,7 @@ public class VentaController {
     }
 
     @GetMapping("/por-fecha/resumen")
-    public VentasResumenDto resumen(@RequestParam(required = false) LocalDate desde,
+    public VentasResumenDto resumen(@RequestParam(required = true) LocalDate desde,//CAMBIADO PARA TEST (true)
                                     @RequestParam(required = false) LocalDate hasta) {
         return ventaService.resumenPorFecha(desde, hasta);
     }

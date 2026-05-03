@@ -33,19 +33,19 @@ public class ClienteController {
     }
 
     @GetMapping("/{id}")
-    public ClienteResponseDto buscar(@PathVariable @Positive(message = "El id debe ser mayor que 0") Long id) {
+    public ClienteResponseDto buscar(@PathVariable @Positive(message = "El ID debe ser mayor que 0") Long id) {
         return clienteService.buscarPorId(id);
     }
 
     @PutMapping("/{id}")
-    public ClienteResponseDto actualizar(@PathVariable @Positive(message = "El id debe ser mayor que 0") Long id,
+    public ClienteResponseDto actualizar(@PathVariable @Positive(message = "El ID debe ser mayor que 0") Long id,
                                          @Valid @RequestBody ClienteRequestDto dto) {
         return clienteService.actualizar(id, dto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void eliminar(@PathVariable @Positive(message = "El id debe ser mayor que 0") Long id) {
+    public void eliminar(@PathVariable @Positive(message = "El ID debe ser mayor que 0") Long id) {
         clienteService.eliminar(id);
     }
 }

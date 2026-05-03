@@ -8,17 +8,17 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ErrorResponse(
         LocalDateTime timestamp,
+        String title,
         int status,
-        String error,
-        String message,
-        String path,
+        String detail,
+        String instance,
         Map<String, String> errors
 ) {
-    public ErrorResponse(int status, String error, String message, String path, Map<String, String> errors) {
-        this(LocalDateTime.now(), status, error, message, path, errors);
+    public ErrorResponse(String title, int status, String detail, String instance, Map<String, String> errors) {
+        this(LocalDateTime.now(), title, status, detail, instance, errors);
     }
 
-    public ErrorResponse(int status, String error, String message, String path) {
-        this(LocalDateTime.now(), status, error, message, path, null);
+    public ErrorResponse(String title, int status, String detail, String instance) {
+        this(LocalDateTime.now(), title, status, detail, instance, null);
     }
 }
