@@ -7,9 +7,12 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.HashMap;
@@ -27,8 +30,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> manejarNotFound(NoEncontradoException ex, HttpServletRequest request) {
 
         ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.name(),
                 HttpStatus.NOT_FOUND.value(),
-                "NOT_FOUND",
                 ex.getMessage(),
                 request.getRequestURI());
 
@@ -44,8 +47,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> manejarBadRequest(SolicitudIncorrectaException ex, HttpServletRequest request) {
 
         ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.name(),
                 HttpStatus.BAD_REQUEST.value(),
-                "BAD_REQUEST",
                 ex.getMessage(),
                 request.getRequestURI());
 
@@ -62,8 +65,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> manejarConflict(ConflictoException ex, HttpServletRequest request) {
 
         ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.name(),
                 HttpStatus.CONFLICT.value(),
-                "CONFLICT",
                 ex.getMessage(),
                 request.getRequestURI());
 
@@ -86,8 +89,8 @@ public class GlobalExceptionHandler {
             errores.put(error.getField(), error.getDefaultMessage());});
 
         ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.name(),
                 HttpStatus.BAD_REQUEST.value(),
-                "BAD_REQUEST",
                 "Error de validación en los campos enviados",
                 request.getRequestURI(),
                 errores
@@ -116,11 +119,31 @@ public class GlobalExceptionHandler {
                 .orElse("Parámetro inválido");
 
         ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.name(),
                 HttpStatus.BAD_REQUEST.value(),
-                "BAD_REQUEST",
                 mensaje,
                 request.getRequestURI(),
                 errores);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    /**
+     * Maneja errores de conversión de tipos en parámetros de la URL (@PathVariable, @RequestParam).
+     * Se ejecuta cuando Spring no puede convertir un valor al tipo esperado
+     * (por ejemplo: enviar "abc" cuando se espera un Long).
+     * Devuelve HTTP 400 BAD_REQUEST con un mensaje indicando el parámetro inválido.
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> manejarTipoIncorrecto(MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+
+        String mensaje = "El parámetro '" + ex.getName() + "' debe ser un número válido";
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.name(),
+                HttpStatus.BAD_REQUEST.value(),
+                mensaje,
+                request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
@@ -132,12 +155,17 @@ public class GlobalExceptionHandler {
      * Devuelve HTTP 400 BAD_REQUEST con un mensaje genérico.
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> manejarJsonInvalido(HttpMessageNotReadableException ex,
-                                                             HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> manejarJsonInvalido(HttpMessageNotReadableException ex, HttpServletRequest request) {
+
+        String mensaje = "JSON inválido o mal formado";
+
+        if (ex.getMessage().contains("Required request body is missing"))
+            mensaje = "El cuerpo de la solicitud es obligatorio";
+
         ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.name(),
                 HttpStatus.BAD_REQUEST.value(),
-                "BAD_REQUEST",
-                "JSON inválido o mal formado",
+                mensaje,
                 request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -153,8 +181,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> manejarMetodoNoPermitido(HttpRequestMethodNotSupportedException ex,
                                                                   HttpServletRequest request) {
         ErrorResponse error = new ErrorResponse(
+                HttpStatus.METHOD_NOT_ALLOWED.name(),
                 HttpStatus.METHOD_NOT_ALLOWED.value(),
-                "METHOD_NOT_ALLOWED",
                 ex.getMessage(),
                 request.getRequestURI());
 
@@ -170,10 +198,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> manejarDuplicados(DataIntegrityViolationException ex, HttpServletRequest request){
 
+        String mensaje = "Error de integridad de datos";
+
+        if (ex.getRootCause() != null && ex.getRootCause().getMessage().contains("correo")) {
+            mensaje = "El correo ya está registrado";
+        }
+
         ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.name(),
                 HttpStatus.CONFLICT.value(),
-                "CONFLICT",
-                "El correo ya está registrado",
+                mensaje,
                 request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
@@ -188,12 +222,49 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> manejarRutaNoEncontrada(NoHandlerFoundException ex, HttpServletRequest request) {
 
         ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.name(),
                 HttpStatus.NOT_FOUND.value(),
-                "NOT_FOUND",
                 ex.getMessage(),
                 request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    /**
+     * Maneja errores cuando falta un parámetro obligatorio en la solicitud (@RequestParam).
+     * Se ejecuta cuando el cliente NO envía un parámetro requerido en la URL.
+     * Devuelve HTTP 400 BAD_REQUEST con el nombre del parámetro faltante.
+     */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> manejarParametroFaltante(MissingServletRequestParameterException ex, HttpServletRequest request) {
+
+        String mensaje = "Falta el parámetro obligatorio: " + ex.getParameterName();
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.name(),
+                HttpStatus.BAD_REQUEST.value(),
+                mensaje,
+                request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    /**
+     * Maneja errores cuando el tipo de contenido enviado no es soportado.
+     * Se ejecuta cuando el cliente envía un Content-Type incorrecto
+     * (por ejemplo: text/plain en lugar de application/json).
+     * Devuelve HTTP 415 UNSUPPORTED_MEDIA_TYPE.
+     */
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> manejarMediaType(HttpMediaTypeNotSupportedException ex, HttpServletRequest request) {
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.UNSUPPORTED_MEDIA_TYPE.name(),
+                HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(),
+                "Tipo de contenido no soportado",
+                request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(error);
     }
 
     /**
@@ -205,8 +276,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> manejarGeneral(Exception ex, HttpServletRequest request) {
 
         ErrorResponse error = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.name(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "INTERNAL_SERVER_ERROR",
                 "Ocurrió un error inesperado",
                 request.getRequestURI());
 
