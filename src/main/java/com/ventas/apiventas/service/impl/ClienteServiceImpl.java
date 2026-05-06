@@ -1,9 +1,9 @@
 package com.ventas.apiventas.service.impl;
 
+import com.ventas.apiventas.dto.request.ClienteActualizarRequestDto;
 import com.ventas.apiventas.dto.request.ClienteRequestDto;
 import com.ventas.apiventas.dto.response.ClienteResponseDto;
 import com.ventas.apiventas.entity.Cliente;
-import com.ventas.apiventas.exception.ConflictoException;
 import com.ventas.apiventas.exception.NoEncontradoException;
 import com.ventas.apiventas.mapper.ClienteMapper;
 import com.ventas.apiventas.repository.ClienteRepository;
@@ -11,6 +11,7 @@ import com.ventas.apiventas.service.ClienteService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ClienteServiceImpl implements ClienteService {
@@ -41,15 +42,15 @@ public class ClienteServiceImpl implements ClienteService {
         return ClienteMapper.toDto(cliente);
     }
 
-    public ClienteResponseDto actualizar(Long id, ClienteRequestDto dto) {
+    public ClienteResponseDto actualizar(Long id, ClienteActualizarRequestDto dto) {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new NoEncontradoException("Cliente no registrado"));
 
-        cliente.setNombre(dto.nombre());
-        cliente.setApellido(dto.apellido());
-        cliente.setCorreo(dto.correo());
-        cliente.setTelefono(dto.telefono());
-        cliente.setDireccion(dto.direccion());
+        Optional.ofNullable(dto.nombre()).ifPresent(cliente::setNombre);
+        Optional.ofNullable(dto.apellido()).ifPresent(cliente::setApellido);
+        Optional.ofNullable(dto.correo()).ifPresent(cliente::setCorreo);
+        Optional.ofNullable(dto.telefono()).ifPresent(cliente::setTelefono);
+        Optional.ofNullable(dto.direccion()).ifPresent(cliente::setDireccion);
 
         Cliente actualizado = clienteRepository.save(cliente);
         return ClienteMapper.toDto(actualizado);

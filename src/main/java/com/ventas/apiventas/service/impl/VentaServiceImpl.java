@@ -64,7 +64,7 @@ public class VentaServiceImpl implements VentaService {
         Cliente cliente = clienteRepository.findById(dto.clienteId())
                 .orElseThrow(() -> new NoEncontradoException("Cliente no registrado"));
 
-        if (dto.detalles().size() > 2) {//CAMBIADO PARA TEST (2)
+        if (dto.detalles().size() > 2) {
             throw new SolicitudIncorrectaException("Máximo 2 productos por venta");
         }
 
