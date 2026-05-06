@@ -38,7 +38,7 @@ public class ClienteController {
         return clienteService.buscarPorId(id);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ClienteResponseDto actualizar(@PathVariable @Positive(message = "El ID debe ser mayor que 0") Long id,
                                          @Valid @RequestBody ClienteActualizarRequestDto dto) {
         return clienteService.actualizar(id, dto);
