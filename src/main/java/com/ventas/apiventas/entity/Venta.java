@@ -31,6 +31,6 @@ public class Venta {
     @JoinColumn(name = "id_cliente")
     private Cliente cliente;
 
-    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "venta", cascade = CascadeType.PERSIST)
     private List<DetalleVenta> detalles;
 }

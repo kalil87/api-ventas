@@ -1,5 +1,6 @@
 package com.ventas.apiventas.service;
 
+import com.ventas.apiventas.dto.request.ClienteActualizarRequestDto;
 import com.ventas.apiventas.dto.request.ClienteRequestDto;
 import com.ventas.apiventas.dto.response.ClienteResponseDto;
 
@@ -13,7 +14,7 @@ public interface ClienteService {
 
     ClienteResponseDto buscarPorId(Long id);
 
-    ClienteResponseDto actualizar(Long id, ClienteRequestDto dto);
+    ClienteResponseDto actualizar(Long id, ClienteActualizarRequestDto dto);
 
     void eliminar(Long id);
 }

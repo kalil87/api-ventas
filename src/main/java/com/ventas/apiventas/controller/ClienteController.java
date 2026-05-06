@@ -1,5 +1,6 @@
 package com.ventas.apiventas.controller;
 
+import com.ventas.apiventas.dto.request.ClienteActualizarRequestDto;
 import com.ventas.apiventas.dto.request.ClienteRequestDto;
 import com.ventas.apiventas.dto.response.ClienteResponseDto;
 import com.ventas.apiventas.service.ClienteService;
@@ -39,7 +40,7 @@ public class ClienteController {
 
     @PutMapping("/{id}")
     public ClienteResponseDto actualizar(@PathVariable @Positive(message = "El ID debe ser mayor que 0") Long id,
-                                         @Valid @RequestBody ClienteRequestDto dto) {
+                                         @Valid @RequestBody ClienteActualizarRequestDto dto) {
         return clienteService.actualizar(id, dto);
     }
 
