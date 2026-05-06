@@ -93,8 +93,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 "Error de validación en los campos enviados",
                 request.getRequestURI(),
-                errores
-        );
+                errores);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
