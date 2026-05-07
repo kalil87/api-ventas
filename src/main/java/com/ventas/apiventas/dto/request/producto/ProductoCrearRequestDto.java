@@ -1,15 +1,16 @@
-package com.ventas.apiventas.dto.request;
+package com.ventas.apiventas.dto.request.producto;
 
 import jakarta.validation.constraints.*;
 
-public record ProductoRequestDto(
+public record ProductoCrearRequestDto(
 
         @NotBlank
-        @Size(max = 100)
+        @Size(min = 2, max = 100)
         String nombre,
 
         @NotNull
         @Positive
+        @DecimalMin(value = "0.01")
         Double precio,
 
         @NotNull
@@ -17,5 +18,6 @@ public record ProductoRequestDto(
         Integer stock,
 
         @NotNull
+        @Positive
         Long tipoProductoId
 ) {}
