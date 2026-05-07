@@ -1,6 +1,7 @@
 package com.ventas.apiventas.controller;
 
-import com.ventas.apiventas.dto.request.ProductoRequestDto;
+import com.ventas.apiventas.dto.request.producto.ProductoActualizarRequestDto;
+import com.ventas.apiventas.dto.request.producto.ProductoCrearRequestDto;
 import com.ventas.apiventas.dto.response.ProductoResponseDto;
 import com.ventas.apiventas.service.ProductoService;
 import jakarta.validation.Valid;
@@ -24,7 +25,7 @@ public class ProductoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductoResponseDto crear(@Valid @RequestBody ProductoRequestDto dto) {
+    public ProductoResponseDto crear(@Valid @RequestBody ProductoCrearRequestDto dto) {
         return productoService.crear(dto);
     }
 
@@ -40,9 +41,9 @@ public class ProductoController {
         return productoService.buscarPorId(id);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ProductoResponseDto actualizar(@PathVariable @Positive(message = "El ID debe ser mayor que 0") Long id,
-                                          @Valid @RequestBody ProductoRequestDto dto) {
+                                          @Valid @RequestBody ProductoActualizarRequestDto dto) {
         return productoService.actualizar(id, dto);
     }
 

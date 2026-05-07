@@ -1,6 +1,7 @@
 package com.ventas.apiventas.controller;
 
-import com.ventas.apiventas.dto.request.TipoProductoRequestDto;
+import com.ventas.apiventas.dto.request.tipoProducto.TipoProductoActualizarRequestDto;
+import com.ventas.apiventas.dto.request.tipoProducto.TipoProductoCrearRequestDto;
 import com.ventas.apiventas.dto.response.TipoProductoResponseDto;
 import com.ventas.apiventas.service.TipoProductoService;
 import jakarta.validation.Valid;
@@ -23,7 +24,7 @@ public class TipoProductoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TipoProductoResponseDto crear(@Valid @RequestBody TipoProductoRequestDto dto) {
+    public TipoProductoResponseDto crear(@Valid @RequestBody TipoProductoCrearRequestDto dto) {
         return tipoProductoService.crear(dto);
     }
 
@@ -37,9 +38,9 @@ public class TipoProductoController {
         return tipoProductoService.buscarPorId(id);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public TipoProductoResponseDto actualizar(@PathVariable @Positive(message = "El ID debe ser mayor que 0") Long id,
-                                              @Valid @RequestBody TipoProductoRequestDto dto) {
+                                              @Valid @RequestBody TipoProductoActualizarRequestDto dto) {
         return tipoProductoService.actualizar(id, dto);
     }
 

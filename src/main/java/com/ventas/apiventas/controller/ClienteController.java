@@ -1,7 +1,7 @@
 package com.ventas.apiventas.controller;
 
-import com.ventas.apiventas.dto.request.ClienteActualizarRequestDto;
-import com.ventas.apiventas.dto.request.ClienteRequestDto;
+import com.ventas.apiventas.dto.request.cliente.ClienteActualizarRequestDto;
+import com.ventas.apiventas.dto.request.cliente.ClienteCrearRequestDto;
 import com.ventas.apiventas.dto.response.ClienteResponseDto;
 import com.ventas.apiventas.service.ClienteService;
 import jakarta.validation.Valid;
@@ -24,7 +24,7 @@ public class ClienteController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ClienteResponseDto crear(@Valid @RequestBody ClienteRequestDto dto) {
+    public ClienteResponseDto crear(@Valid @RequestBody ClienteCrearRequestDto dto) {
         return clienteService.crear(dto);
     }
 
