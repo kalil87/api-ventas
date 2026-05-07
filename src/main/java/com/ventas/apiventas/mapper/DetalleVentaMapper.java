@@ -22,7 +22,6 @@ public class DetalleVentaMapper {
                 detalleVenta.getProducto().getNombre(),
                 detalleVenta.getCantidad(),
                 detalleVenta.getPrecioUnitario(),
-                detalleVenta.getSubtotal()
-        );
+                detalleVenta.getSubtotal());
     }
 }

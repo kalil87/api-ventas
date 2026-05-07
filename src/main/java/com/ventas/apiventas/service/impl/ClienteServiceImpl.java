@@ -1,7 +1,7 @@
 package com.ventas.apiventas.service.impl;
 
-import com.ventas.apiventas.dto.request.ClienteActualizarRequestDto;
-import com.ventas.apiventas.dto.request.ClienteRequestDto;
+import com.ventas.apiventas.dto.request.cliente.ClienteActualizarRequestDto;
+import com.ventas.apiventas.dto.request.cliente.ClienteCrearRequestDto;
 import com.ventas.apiventas.dto.response.ClienteResponseDto;
 import com.ventas.apiventas.entity.Cliente;
 import com.ventas.apiventas.exception.NoEncontradoException;
@@ -11,7 +11,6 @@ import com.ventas.apiventas.service.ClienteService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ClienteServiceImpl implements ClienteService {
@@ -21,7 +20,7 @@ public class ClienteServiceImpl implements ClienteService {
         this.clienteRepository = clienteRepository;
     }
 
-    public ClienteResponseDto crear(ClienteRequestDto dto) {
+    public ClienteResponseDto crear(ClienteCrearRequestDto dto) {
 
         Cliente cliente = ClienteMapper.toEntity(dto);
         Cliente guardado = clienteRepository.save(cliente);
@@ -46,20 +45,15 @@ public class ClienteServiceImpl implements ClienteService {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new NoEncontradoException("Cliente no registrado"));
 
-        Optional.ofNullable(dto.nombre()).ifPresent(cliente::setNombre);
-        Optional.ofNullable(dto.apellido()).ifPresent(cliente::setApellido);
-        Optional.ofNullable(dto.correo()).ifPresent(cliente::setCorreo);
-        Optional.ofNullable(dto.telefono()).ifPresent(cliente::setTelefono);
-        Optional.ofNullable(dto.direccion()).ifPresent(cliente::setDireccion);
-
+        ClienteMapper.updateEntity(cliente, dto);
         Cliente actualizado = clienteRepository.save(cliente);
         return ClienteMapper.toDto(actualizado);
     }
 
     public void eliminar(Long id) {
-        if (!clienteRepository.existsById(id)) {
-            throw new NoEncontradoException("Cliente no registrado");
-        }
-        clienteRepository.deleteById(id);
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(()-> new NoEncontradoException("Cliente no registrado"));
+
+        clienteRepository.delete(cliente);
     }
 }

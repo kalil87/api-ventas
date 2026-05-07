@@ -1,6 +1,7 @@
 package com.ventas.apiventas.service.impl;
 
-import com.ventas.apiventas.dto.request.TipoProductoRequestDto;
+import com.ventas.apiventas.dto.request.tipoProducto.TipoProductoActualizarRequestDto;
+import com.ventas.apiventas.dto.request.tipoProducto.TipoProductoCrearRequestDto;
 import com.ventas.apiventas.dto.response.TipoProductoResponseDto;
 import com.ventas.apiventas.entity.TipoProducto;
 import com.ventas.apiventas.exception.NoEncontradoException;
@@ -19,7 +20,7 @@ public class TipoProductoServiceImpl implements TipoProductoService {
         this.tipoProductoRepository = tipoProductoRepository;
     }
 
-    public TipoProductoResponseDto crear(TipoProductoRequestDto dto) {
+    public TipoProductoResponseDto crear(TipoProductoCrearRequestDto dto) {
         TipoProducto tipo = TipoProductoMapper.toEntity(dto);
         TipoProducto guardado = tipoProductoRepository.save(tipo);
         return TipoProductoMapper.toDto(guardado);
@@ -39,12 +40,13 @@ public class TipoProductoServiceImpl implements TipoProductoService {
         return TipoProductoMapper.toDto(tipo);
     }
 
-    public TipoProductoResponseDto actualizar(Long id, TipoProductoRequestDto dto) {
+    public TipoProductoResponseDto actualizar(Long id, TipoProductoActualizarRequestDto dto) {
         TipoProducto tipo = tipoProductoRepository.findById(id)
                 .orElseThrow(() -> new NoEncontradoException("TipoProducto no encontrado"));
 
-        tipo.setNombre(dto.nombre());
-        tipo.setDescripcion(dto.descripcion());
+//        tipo.setNombre(dto.nombre());
+//        tipo.setDescripcion(dto.descripcion());
+        TipoProductoMapper.updateEntity(tipo, dto);
 
         TipoProducto actualizado = tipoProductoRepository.save(tipo);
         return TipoProductoMapper.toDto(actualizado);

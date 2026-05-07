@@ -1,14 +1,14 @@
 package com.ventas.apiventas.service;
 
-import com.ventas.apiventas.dto.request.ClienteActualizarRequestDto;
-import com.ventas.apiventas.dto.request.ClienteRequestDto;
+import com.ventas.apiventas.dto.request.cliente.ClienteActualizarRequestDto;
+import com.ventas.apiventas.dto.request.cliente.ClienteCrearRequestDto;
 import com.ventas.apiventas.dto.response.ClienteResponseDto;
 
 import java.util.List;
 
 public interface ClienteService {
 
-    ClienteResponseDto crear(ClienteRequestDto dto);
+    ClienteResponseDto crear(ClienteCrearRequestDto dto);
 
     List<ClienteResponseDto> listar();
 

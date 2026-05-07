@@ -1,6 +1,7 @@
 package com.ventas.apiventas.service.impl;
 
-import com.ventas.apiventas.dto.request.ProductoRequestDto;
+import com.ventas.apiventas.dto.request.producto.ProductoActualizarRequestDto;
+import com.ventas.apiventas.dto.request.producto.ProductoCrearRequestDto;
 import com.ventas.apiventas.dto.response.ProductoResponseDto;
 import com.ventas.apiventas.entity.Producto;
 import com.ventas.apiventas.entity.TipoProducto;
@@ -23,17 +24,12 @@ public class ProductoServiceImpl implements ProductoService {
         this.tipoProductoRepository = tipoProductoRepository;
     }
 
-    public ProductoResponseDto crear(ProductoRequestDto dto) {
+    public ProductoResponseDto crear(ProductoCrearRequestDto dto) {
 
         TipoProducto tipo = tipoProductoRepository.findById(dto.tipoProductoId())
                 .orElseThrow(() -> new NoEncontradoException("TipoProducto no encontrado"));
 
-        Producto producto = new Producto();
-        producto.setNombre(dto.nombre());
-        producto.setPrecio(dto.precio());
-        producto.setStock(dto.stock());
-        producto.setTipoProducto(tipo);
-
+        Producto producto = ProductoMapper.toEntity(dto, tipo);
         Producto guardado = productoRepository.save(producto);
 
         return ProductoMapper.toDto(guardado);
@@ -57,18 +53,14 @@ public class ProductoServiceImpl implements ProductoService {
         return ProductoMapper.toDto(producto);
     }
 
-    public ProductoResponseDto actualizar(Long id, ProductoRequestDto dto) {
+    public ProductoResponseDto actualizar(Long id, ProductoActualizarRequestDto dto) {
 
         Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new NoEncontradoException("Producto no encontrado"));
 
-        TipoProducto tipo = tipoProductoRepository.findById(dto.tipoProductoId())
-                .orElseThrow(() -> new NoEncontradoException("TipoProducto no encontrado"));
+        TipoProducto tipo = obtenerTipoProducto(dto.tipoProductoId());
 
-        producto.setNombre(dto.nombre());
-        producto.setPrecio(dto.precio());
-        producto.setStock(dto.stock());
-        producto.setTipoProducto(tipo);
+        ProductoMapper.updateEntity(producto, dto, tipo);
 
         Producto actualizado = productoRepository.save(producto);
 
@@ -76,10 +68,9 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     public void eliminar(Long id) {
-        if (!productoRepository.existsById(id)) {
-            throw new NoEncontradoException("Producto no encontrado");
-        }
-        productoRepository.deleteById(id);
+        Producto producto = productoRepository.findById(id)
+                .orElseThrow(()-> new NoEncontradoException("Producto no registrado"));
+        productoRepository.delete(producto);
     }
 
     public List<ProductoResponseDto> buscarPorNombre(String nombre) {
@@ -87,5 +78,15 @@ public class ProductoServiceImpl implements ProductoService {
                 .stream()
                 .map(ProductoMapper::toDto)
                 .toList();
+    }
+
+    private TipoProducto obtenerTipoProducto(Long tipoProductoId) {
+
+        if (tipoProductoId == null) {
+            return null;
+        }
+
+        return tipoProductoRepository.findById(tipoProductoId)
+                .orElseThrow(() -> new NoEncontradoException("TipoProducto no encontrado"));
     }
 }
